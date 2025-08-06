@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TranscriptAI - Результаты</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-left-color: #667eea;
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 2rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-details:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .filter-left {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Form Styles */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select {
+            min-width: 150px;
+        }
+
+        .search-input {
+            min-width: 300px;
+        }
+
+        /* File List */
+        .file-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .file-meta {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-processing {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* User badges */
+        .user-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Quick filters */
+        .quick-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-filter {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-filter:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-filter.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .file-actions {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-item {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-microphone-alt"></i> TranscriptAI</h1>
+            </div>
+            
+            <nav>
+                <div class="nav-item">
+                    <i class="fas fa-cogs"></i> Обработка
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-file-alt"></i> Результаты
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-user"></i> Профиль
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-users"></i> Пользователи
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i> Настройки
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-avatar">МИ</div>
+                    <div>
+                        <div style="font-weight: 600;">Мишаня</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">Backend Engineer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Результаты транскрибации</h1>
+                <p class="page-subtitle">Просмотр и управление транскрибированными файлами</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">247</div>
+                    <div class="stat-label">Всего файлов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">31.2</div>
+                    <div class="stat-label">Часов аудио</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98.7%</div>
+                    <div class="stat-label">Средняя точность</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Активных пользователей</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card">
+                <div class="filter-bar">
+                    <div class="filter-left">
+                        <div class="filter-item">
+                            <label class="form-label">Пользователь:</label>
+                            <select class="form-input form-select">
+                                <option>Все пользователи</option>
+                                <option>Мишаня</option>
+                                <option>Анна Козлова</option>
+                                <option>Дмитрий Морозов</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">Период:</label>
+                            <select class="form-input form-select">
+                                <option>За всё время</option>
+                                <option>Сегодня</option>
+                                <option>За неделю</option>
+                                <option>За месяц</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">Статус:</label>
+                            <select class="form-input form-select">
+                                <option>Все статусы</option>
+                                <option>Завершено</option>
+                                <option>Обработка</option>
+                                <option>Ошибка</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-item">
+                        <input type="text" class="form-input search-input" placeholder="Поиск по названию файла...">
+                        <button class="btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="quick-filters">
+                    <div class="quick-filter active">Все файлы</div>
+                    <div class="quick-filter">Мои файлы</div>
+                    <div class="quick-filter">За сегодня</div>
+                    <div class="quick-filter">Высокое качество</div>
+                    <div class="quick-filter">Требуют проверки</div>
+                </div>
+            </div>
+
+            <!-- Results List -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Транскрибированные файлы (247)</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                        <button class="btn btn-small">
+                            <i class="fas fa-plus"></i> Загрузить новые
+                        </button>
+                    </div>
+                </div>
+
+                <div class="file-list">
+                    <!-- File Item 1 -->
+                    <div class="file-item" onclick="viewTranscription('meeting_record.wav')">
+                        <div class="file-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">weekly_meeting_2024_01_15.wav</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 1:23:45
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 12.4 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> 2 часа назад
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i> 
+                                    <span class="user-badge">Мишаня</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-percentage"></i> 98.7%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-completed">Готово</div>
+                        <div class="file-actions">
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Item 2 -->
+                    <div class="file-item" onclick="viewTranscription('interview_candidate.mp3')">
+                        <div class="file-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">interview_candidate_senior_dev.mp3</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 45:22
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 6.8 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> 5 часов назад
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i> 
+                                    <span class="user-badge">Анна Козлова</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-percentage"></i> 96.2%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-completed">Готово</div>
+                        <div class="file-actions">
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Item 3 -->
+                    <div class="file-item" onclick="viewTranscription('lecture_ml.mp4')">
+                        <div class="file-icon">
+                            <i class="fas fa-file-video"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">lecture_machine_learning_basics.mp4</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 2:15:30
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 89.3 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> Вчера
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i> 
+                                    <span class="user-badge">Мишаня</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-percentage"></i> 99.1%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-completed">Готово</div>
+                        <div class="file-actions">
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Item 4 -->
+                    <div class="file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file-audio"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">client_call_project_discussion.wav</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 32:18
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 4.2 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> Обрабатывается...
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i> 
+                                    <span class="user-badge">Дмитрий Морозов</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-processing">Обработка</div>
+                        <div class="file-actions">
+                            <button class="btn btn-secondary btn-small" disabled>
+                                <i class="fas fa-spinner fa-spin"></i> Ожидание
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Item 5 -->
+                    <div class="file-item" onclick="viewTranscription('standup_meeting.m4a')">
+                        <div class="file-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">daily_standup_backend_team.m4a</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 15:42
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 2.1 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> 2 дня назад
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i> 
+                                    <span class="user-badge">Анна Козлова</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-percentage"></i> 97.4%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-completed">Готово</div>
+                        <div class="file-actions">
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                            <button class="btn btn-secondary btn-small">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Item 6 -->
+                    <div class="file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file-audio"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">conference_keynote_speech.mp3</div>
+                            <div class="file-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> 58:30
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-hdd"></i> 8.9 MB
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i> 3 дня назад

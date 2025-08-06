@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TranscriptAI - Транскрибация</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+      color: #e2e8f0;
+    }
+    .container { display: flex; min-height: 100vh; }
+    
+    /* Боковая панель из result2 */
+    .sidebar {
+      width: 280px;
+      background: rgba(15, 15, 35, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2rem 0;
+      position: fixed;
+      height: 100vh;
+    }
+    .logo {
+      padding: 0 2rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 2rem;
+    }
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-item {
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: 0.3s;
+    }
+    .nav-item.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-left-color: #667eea;
+    }
+    .nav-item:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateX(5px);
+    }
+    .nav-item i { margin-right: 1rem; }
+    .user-info {
+      position: absolute;
+      bottom: 2rem;
+      width: 100%;
+      padding: 0 2rem;
+    }
+    .user-details {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+    
+    /* Основной контент */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 2rem;
+      max-width: 1000px;
+    }
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #22d3ee, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* Крутой тогл из result4 */
+    .toggle-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4ade80;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Красивая кнопка экспорта */
+    .download-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .download-btn {
+      background: linear-gradient(135deg, #4ade80, #22c55e, #16a34a);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+      font-weight: 600;
+      gap: 0.5rem;
+    }
+    .download-btn:hover {
+      background: linear-gradient(135deg, #22c55e, #16a34a, #15803d);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(74, 222, 128, 0.4);
+    }
+    .download-btn:active {
+      transform: translateY(-1px);
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(17, 24, 39, 0.98);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      margin-top: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .dropdown-menu button {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      color: #e2e8f0;
+      text-align: left;
+      width: 100%;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    .dropdown-menu button:hover {
+      background: rgba(74, 222, 128, 0.1);
+      color: #4ade80;
+      transform: translateX(4px);
+    }
+    .dropdown-menu button i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Транскрипция боксы */
+    .transcription-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 2rem;
+      position: relative;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+    .copy-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      color: #e2e8f0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.3s;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Диаризованный вид из result2 */
+    .speaker-block {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border-left: 4px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.08);
+      border-radius: 8px;
+    }
+    .speaker-label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #e0f2fe;
+    }
+    
+    /* Обычный и диаризованный текст */
+    .transcription-text {
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+    .transcription-text span {
+      position: relative;
+      cursor: pointer;
+    }
+    .transcription-text span::after {
+      content: attr(data-time);
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      transform: translateY(-5px);
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .transcription-text span:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Боковая панель из result2 -->
+    <div class="sidebar">
+      <div class="logo">
+        <h1><i class="fas fa-microphone-alt"></i> TranscriptAI</h1>
+      </div>
+      <nav>
+        <div class="nav-item" data-page="processing"><i class="fas fa-cogs"></i> Обработка</div>
+        <div class="nav-item" data-page="results"><i class="fas fa-file-alt"></i> Результаты</div>
+        <div class="nav-item" data-page="profile"><i class="fas fa-user"></i> Профиль</div>
+        <div class="nav-item" data-page="users"><i class="fas fa-users"></i> Пользователи</div>
+        <div class="nav-item active" data-page="transcription"><i class="fas fa-wave-square"></i> Транскрибация</div>
+      </nav>
+      <div class="user-info">
+        <div class="user-details">
+          <div class="user-avatar">МИ</div>
+          <div>
+            <div style="font-weight: 600;">Мишаня</div>
+            <div style="font-size: 0.8rem; color: #94a3b8;">Backend Engineer</div>
+            <div style="margin-top: 0.25rem; font-size: 0.9rem; color: #cbd5e1;">
+              <i class="fas fa-clock" style="margin-right: 0.5rem; color: #22c55e;"></i>
+              143 минуты осталось
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+      <h1 class="page-title">Результат транскрибации</h1>
+      
+      <!-- Панель управления -->
+      <div class="toggle-bar">
+        <label style="display: flex; align-items: center; gap: 1rem; font-weight: 600;">
+          <span>Диаризация:</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="toggle-dia" onchange="toggleView()">
+            <span class="slider"></span>
+          </div>
+        </label>
+        <div class="download-wrapper">
+          <button class="download-btn" onclick="toggleDropdown()">
+            <i class="fas fa-download"></i>
+            <span style="font-weight: 600;">Скачать</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu" id="dropdownMenu">
+            <button><i class="fas fa-file-pdf" style="color: #dc2626;"></i> PDF</button>
+            <button><i class="fas fa-file-word" style="color: #2563eb;"></i> DOCX</button>
+            <button><i class="fas fa-file-alt" style="color: #64748b;"></i> TXT</button>
+            <button><i class="fas fa-code" style="color: #f59e0b;"></i> JSON</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Обычный вид (по умолчанию) -->
+      <div class="transcription-box" id="plain-view">
+        <button class="copy-btn" onclick="copyText('plain-view')">Копировать</button>
+        <div class="transcription-text">
+          <span data-time="00:00">Привет,</span> <span data-time="00:01">рад</span> <span data-time="00:02">тебя</span> <span data-time="00:03">слышать!</span> <span data-time="00:04">Как</span> <span data-time="00:05">дела?</span> <span data-time="00:16">Привет!</span> <span data-time="00:17">Всё</span> <span data-time="00:18">отлично,</span> <span data-time="00:19">спасибо.</span> <span data-time="00:20">У</span> <span data-time="00:21">тебя</span> <span data-time="00:22">как?</span> <span data-time="00:31">Тоже</span> <span data-time="00:32">всё</span> <span data-time="00:33">супер.</span> <span data-time="00:34">Готов</span> <span data-time="00:35">обсудить</span> <span data-time="00:36">проект?</span>
+        </div>
+      </div>
+      
+      <!-- Диаризованный вид (скрыт по умолчанию) -->
+      <div class="transcription-box" id="diarized-view" style="display: none;">
+        <button class="copy-btn" onclick="copyText('diarized-view')">Копировать</button>
+        <div class="speaker-block">
+          <div class="speaker-label">Спикер 1 <span style="color:#94a3b8">[00:00 - 00:15]</span></div>
+          <div class="transcription-text">
+            <span data-time="00:00">Привет,</span> <span data-time="00:01">рад</span> <span data-time="00:02">тебя</span> <span data-time="00:03">слышать!</span> <span data-time="00:04">Как</span> <span data-time="00:05">дела?</span>
+          </div>
+        </div>
+        <div class="speaker-block">
+          <div class="speaker-label">Спикер 2 <span style="color:#94a3b8">[00:16 - 00:30]</span></div>
+          <div class="transcription-text">
+            <span data-time="00:16">Привет!</span> <span data-time="00:17">Всё</span> <span data-time="00:18">отлично,</span> <span data-time="00:19">спасибо.</span> <span data-time="00:20">У</span> <span data-time="00:21">тебя</span> <span data-time="00:22">как?</span>
+          </div>
+        </div>
+        <div class="speaker-block">
+          <div class="speaker-label">Спикер 1 <span style="color:#94a3b8">[00:31 - 00:45]</span></div>
+          <div class="transcription-text">
+            <span data-time="00:31">Тоже</span> <span data-time="00:32">всё</span> <span data-time="00:33">супер.</span> <span data-time="00:34">Готов</span> <span data-time="00:35">обсудить</span> <span data-time="00:36">проект?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleView() {
+      const checkbox = document.getElementById('toggle-dia');
+      document.getElementById('plain-view').style.display = checkbox.checked ? 'none' : 'block';
+      document.getElementById('diarized-view').style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function toggleDropdown() {
+      const menu = document.getElementById('dropdownMenu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.onclick = function(e) {
+      if (!e.target.closest('.download-wrapper')) {
+        const menu = document.getElementById('dropdownMenu');
+        if (menu) menu.style.display = 'none';
+      }
+    }
+
+    function copyText(id) {
+      const box = document.getElementById(id);
+      let text = '';
+      
+      if (id === 'diarized-view') {
+        // Для диаризованного вида собираем текст из всех блоков спикеров
+        const speakerBlocks = box.querySelectorAll('.speaker-block .transcription-text');
+        text = Array.from(speakerBlocks).map(block => block.textContent.trim()).join(' ');
+      } else {
+        // Для обычного вида собираем текст из span'ов
+        const spans = box.querySelectorAll('.transcription-text span');
+        text = Array.from(spans).map(span => span.textContent).join(' ');
+      }
+      
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Текст скопирован!');
+      }).catch(() => {
+        alert('Ошибка при копировании');
+      });
+    }
+  </script>
+</body>
+</html>

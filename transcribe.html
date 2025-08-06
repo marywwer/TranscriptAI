@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TranscriptAI - Транскрибация файлов</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-left-color: #667eea;
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 2rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-details:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* File Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(102, 126, 234, 0.5);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        /* File List */
+        .file-list {
+            margin-top: 2rem;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-meta {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .file-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-processing {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-pending {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Source Selection */
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .source-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .source-card:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .source-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .source-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* User Table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .user-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .role-transcriptor {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .role-observer {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        /* Transcription View */
+        .transcription-header {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .transcription-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .transcription-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .speaker-line {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .speaker-1 {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+        }
+
+        .speaker-2 {
+            background: rgba(118, 75, 162, 0.1);
+            border-left-color: #764ba2;
+        }
+
+        .speaker-3 {
+            background: rgba(34, 197, 94, 0.1);
+            border-left-color: #22c55e;
+        }
+
+        .speaker-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timestamp {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .source-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing {
+            animation: pulse 2s infinite;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-microphone-alt"></i> TranscriptAI</h1>
+            </div>
+            
+            <nav>
+                <div class="nav-item active" data-page="processing">
+                    <i class="fas fa-cogs"></i> Обработка
+                </div>
+                <div class="nav-item" data-page="results">
+                    <i class="fas fa-file-alt"></i> Результаты
+                </div>
+                <div class="nav-item" data-page="profile">
+                    <i class="fas fa-user"></i> Профиль
+                </div>
+                <div class="nav-item" data-page="users">
+                    <i class="fas fa-users"></i> Пользователи
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i> Настройки
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-avatar">МИ</div>
+                    <div>
+                        <div style="font-weight: 600;">Мишаня</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">Backend Engineer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Processing Page -->
+            <div class="page active" id="processing">
+                <div class="page-header">
+                    <h1 class="page-title">Обработка файлов</h1>
+                    <p class="page-subtitle">Выберите источник и загрузите файлы для транскрибации</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">124</div>
+                        <div class="stat-label">Всего файлов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">98</div>
+                        <div class="stat-label">Обработано</div>
+                    </div>
+                    <div class="stat-card processing">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Обрабатываются</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">Ошибки</div>
+                    </div>
+                </div>
+
+                <!-- Source Selection -->
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Выберите источник файлов</h3>
+                    <div class="source-grid">
+                        <div class="source-card" data-source="google">
+                            <div class="source-icon">
+                                <i class="fab fa-google-drive"></i>
+                            </div>
+                            <h4>Google Drive</h4>
+                            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">Синхронизация с Google Диском</p>
+                        </div>
+                        <div class="source-card" data-source="yandex">
+                            <div class="source-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <h4>Яндекс.Диск</h4>
+                            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">Синхронизация с Яндекс.Диском</p>
+                        </div>
+                        <div class="source-card selected" data-source="upload">
+                            <div class="source-icon">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <h4>Загрузка файлов</h4>
+                            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">До 100 файлов за раз</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="card">
+                    <div class="upload-area">
+                        <div class="upload-icon floating">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Перетащите файлы сюда или нажмите для выбора</h3>
+                        <p style="color: #94a3b8; margin-top: 0.5rem;">Поддерживаются: MP3, WAV, M4A, MP4 (до 100 файлов)</p>
+                        <button class="btn" style="margin-top: 1rem;">
+                            <i class="fas fa-plus"></i> Выбрать файлы
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File List -->
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Файлы в обработке</h3>
+                    <div class="file-list">
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-audio"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">interview_01.mp3</div>
+                                <div class="file-meta">2.4 MB • 15:32 • Google Drive</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                            <div class="file-status status-processing">Обработка</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-audio"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">meeting_record.wav</div>
+                                <div class="file-meta">8.1 MB • 45:18 • Загружен</div>
+                            </div>
+                            <div class="file-status status-completed">Готово</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-audio"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">call_recording.m4a</div>
+                                <div class="file-meta">1.2 MB • 8:45 • Яндекс.Диск</div>
+                            </div>
+                            <div class="file-status status-error">Ошибка</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-audio"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">presentation.mp4</div>
+                                <div class="file-meta">15.6 MB • 1:23:15 • Загружен</div>
+                            </div>
+                            <div class="file-status status-pending">В очереди</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div class="page" id="results">
+                <div class="page-header">
+                    <h1 class="page-title">Результаты транскрибации</h1>
+                    <p class="page-subtitle">Просмотр и управление транскрибированными файлами</p>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="card">
+                    <div class="filter-bar">
+                        <div class="filter-item">
+                            <label class="form-label">Фильтр:</label>
+                            <select class="form-input" style="width: auto;">
+                                <option>Все файлы</option>
+                                <option>Мои файлы</option>
+                                <option>По пользователям</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="form-label">Поиск:</label>
+                            <input type="text" class="form-input" placeholder="Название файла..." style="width: 250px;">
+                        </div>
+                        <button class="btn">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results List -->
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Транскрибированные файлы</h3>
+                    <div class="file-list">
+                        <div class="file-item" onclick="showTranscription()">
+                            <div class="file-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">meeting_record.wav</div>
+                                <div class="file-meta">8.1 MB • 45:18 • Обработано: Мишаня • 2 часа назад</div>
+                            </div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                        </div>
+
+                        <div class="file-item" onclick="showTranscription()">
+                            <div class="file-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">interview_01.mp3</div>
+                                <div class="file-meta">2.4 MB • 15:32 • Обработано: Админ • Вчера</div>
+                            </div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-eye"></i> Просмотр
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div class="page" id="profile">
+                <div class="page-header">
+                    <h1 class="page-title">Профиль пользователя</h1>
+                    <p class="page-subtitle">Управление настройками аккаунта</p>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                        <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold;">
+                            МИ
+                        </div>
+                        <div>
+                            <h2>Мишаня</h2>
+                            <p style="color: #94a3b8;">Backend Engineer • Администратор</p>
+                            <button class="btn" style="margin-top: 1rem;">
+                                <i class="fas fa-camera"></i> Изменить фото
+                            </button>

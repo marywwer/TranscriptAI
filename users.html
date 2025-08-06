@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TranscriptAI - Пользователи</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-left-color: #667eea;
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            padding: 0 2rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-details:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* User Table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .user-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .user-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-row {
+            cursor: pointer;
+        }
+
+        .user-row.selected {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Role badges */
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .role-transcriptor {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .role-observer {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        /* Status indicators */
+        .status-online {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-offline {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #94a3b8;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Search and filters */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        /* Bulk actions */
+        .bulk-actions {
+            display: none;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bulk-actions.active {
+            display: flex;
+        }
+
+        /* User card for mobile */
+        .user-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-table {
+                display: none;
+            }
+
+            .user-card {
+                display: block;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing {
+            animation: pulse 2s infinite;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+        }
+
+        .tab:hover {
+            color: #e2e8f0;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Notification badge */
+        .notification-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-microphone-alt"></i> TranscriptAI</h1>
+            </div>
+            
+            <nav>
+                <div class="nav-item">
+                    <i class="fas fa-cogs"></i> Обработка
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-file-alt"></i> Результаты
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-user"></i> Профиль
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-users"></i> Пользователи
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i> Настройки
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-avatar">МИ</div>
+                    <div>
+                        <div style="font-weight: 600;">Мишаня</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">Backend Engineer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Управление пользователями</h1>
+                <p class="page-subtitle">Добавление, редактирование и управление ролями пользователей</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Всего пользователей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">18</div>
+                    <div class="stat-label">Активных</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Ожидают подтверждения</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2.4K</div>
+                    <div class="stat-label">Использовано минут</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" data-tab="users">Все пользователи</div>
+                <div class="tab" data-tab="pending">Ожидают подтверждения <span class="notification-badge">3</span></div>
+                <div class="tab" data-tab="usage">Использование ресурсов</div>
+                <div class="tab" data-tab="invitations">Приглашения</div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="users-tab">
+                <!-- User Management -->
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" class="form-input search-input" placeholder="Поиск пользователей...">
+                        <select class="form-input">
+                            <option>Все роли</option>
+                            <option>Администраторы</option>
+                            <option>Транскрибаторы</option>
+                            <option>Наблюдатели</option>
+                        </select>
+                        <select class="form-input">
+                            <option>Все статусы</option>
+                            <option>Активные</option>
+                            <option>Неактивные</option>
+                            <option>Заблокированные</option>
+                        </select>
+                        <button class="btn" onclick="showInviteModal()">
+                            <i class="fas fa-plus"></i> Пригласить
+                        </button>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div class="bulk-actions" id="bulkActions">
+                        <span>Выбрано пользователей: <strong id="selectedCount">0</strong></span>
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-edit"></i> Изменить роль
+                        </button>
+                        <button class="btn btn-danger btn-small">
+                            <i class="fas fa-ban"></i> Заблокировать
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="clearSelection()">
+                            <i class="fas fa-times"></i> Отменить
+                        </button>
+                    </div>
+
+                    <!-- Users Table -->
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" onchange="toggleAllUsers()">
+                                </th>
+                                <th>Пользователь</th>
+                                <th>Роль</th>
+                                <th>Статус</th>
+                                <th>Последняя активность</th>
+                                <th>Файлов</th>
+                                <th>Лимит минут</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr class="user-row" data-user-id="1">
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar">МИ</div>
+                                        <div>
+                                            <div style="font-weight: 600;">Мишаня</div>
+                                            <div style="color: #94a3b8; font-size: 0.9rem;">mishanya@transcriptai.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="role-badge role-admin">Админ</span></td>
+                                <td>
+                                    <span class="status-online"></span>
+                                    Онлайн
+                                </td>
+                                <td>2 минуты назад</td>
+                                <td>47</td>
+                                <td>
+                                    <div>Безлимит</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-small" onclick="editUser(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <tr class="user-row" data-user-id="2">
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar">АК</div>
+                                        <div>
+                                            <div style="font-weight: 600;">Анна Козлова</div>
+                                            <div style="color: #94a3b8; font-size: 0.9rem;">anna.kozlova@company.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="role-badge role-transcriptor">Транскрибатор</span></td>
+                                <td>
+                                    <span class="status-online"></span>
+                                    Онлайн
+                                </td>
+                                <td>15 минут назад</td>
+                                <td>23</td>
+                                <td>
+                                    <div>68 / 100 мин</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 68%;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-small" onclick="editUser(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="user-row" data-user-id="3">
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar">ДМ</div>
+                                        <div>
+                                            <div style="font-weight: 600;">Дмитрий Морозов</div>
+                                            <div style="color: #94a3b8; font-size: 0.9rem;">dmitriy.morozov@company.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="role-badge role-observer">Наблюдатель</span></td>
+                                <td>
+                                    <span class="status-offline"></span>
+                                    Оффлайн
+                                </td>
+                                <td>2 часа назад</td>
+                                <td>0</td>
+                                <td>
+                                    <div>0 / 50 мин</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 0%;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-small" onclick="editUser(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="user-row" data-user-id="4">
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar">ЕС</div>
+                                        <div>
+                                            <div style="font-weight: 600;">Елена Смирнова</div>
+                                            <div style="color: #94a3b8; font-size: 0.9rem;">elena.smirnova@company.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="role-badge role-transcriptor">Транскрибатор</span></td>
+                                <td>
+                                    <span class="status-online"></span>
+                                    Онлайн
+                                </td>
+                                <td>5 минут назад</td>
+                                <td>34</td>
+                                <td>
+                                    <div>89 / 150 мин</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 59.3%;"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary btn-small" onclick="editUser(4)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="user-row" data-user-id="5">
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div class="user-avatar">ВК</div>
+                                        <div>
+                                            <div style="font-weight: 600;">Владимир Кузнецов</div>
+                                            <div style="color: #94a3b8; font-size: 0.9rem;">vladimir.kuznetsov@company.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="role-badge role-observer">Наблюдатель</span></td>
+                                <td>
+                                    <span class="status-offline"></span>
+                                    Оффлайн
+                                </td>
+                                <td>1 день назад</td>
+                                <td>2</td>
+                                <td>
+                                    <div>12 / 50 мин</div>
+                                    <div class="progress-bar">

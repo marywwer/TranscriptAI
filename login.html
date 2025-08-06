@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TranscriptAI — Вход / Регистрация</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .auth-container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3rem;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      transition: 0.4s ease-in-out;
+      animation: fadeSlideUp 0.8s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    @keyframes fadeSlideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .auth-container h2 {
+      text-align: center;
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+    }
+    .auth-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    .auth-toggle {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    .auth-toggle a {
+      color: #8b5cf6;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .auth-toggle a:hover {
+      color: #a78bfa;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 0.7rem;
+      border-radius: 8px;
+      width: 100%;
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.3s;
+    }
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2 id="form-title">Вход в аккаунт</h2>
+
+    <div id="social-login">
+      <div class="social-btn"><i class="fab fa-telegram"></i> Войти через Telegram</div>
+      <div class="social-btn"><i class="fab fa-google"></i> Войти через Google</div>
+    </div>
+
+    <form id="auth-form">
+      <div class="form-group">
+        <input type="email" class="form-input" placeholder="Email" required>
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-input" placeholder="Пароль" required>
+      </div>
+      <button type="submit" class="auth-btn" id="submit-button">Войти</button>
+    </form>
+
+    <div class="auth-toggle">
+      Нет аккаунта? <a onclick="toggleForm()">Зарегистрироваться</a>
+    </div>
+  </div>
+
+  <script>
+    let isLogin = true;
+
+    function toggleForm() {
+      const formTitle = document.getElementById('form-title');
+      const submitButton = document.getElementById('submit-button');
+      const toggleText = document.querySelector('.auth-toggle');
+
+      isLogin = !isLogin;
+
+      if (isLogin) {
+        formTitle.textContent = 'Вход в аккаунт';
+        submitButton.textContent = 'Войти';
+        toggleText.innerHTML = 'Нет аккаунта? <a onclick="toggleForm()">Зарегистрироваться</a>';
+      } else {
+        formTitle.textContent = 'Регистрация';
+        submitButton.textContent = 'Зарегистрироваться';
+        toggleText.innerHTML = 'Уже есть аккаунт? <a onclick="toggleForm()">Войти</a>';
+      }
+    }
+  </script>
+</body>
+</html>
+
