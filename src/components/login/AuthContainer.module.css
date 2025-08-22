@@ -1,0 +1,14 @@
+.authToggle {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+.authToggle a {
+  color: #8b5cf6;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.authToggle a:hover {
+  color: #a78bfa;
+}

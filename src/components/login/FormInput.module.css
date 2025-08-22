@@ -1,0 +1,18 @@
+.formGroup {
+  margin-bottom: 1.2rem;
+}
+.formInput {
+  width: 100%;
+  color: #f0e4e2;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+.formInput:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}

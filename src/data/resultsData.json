@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "photo": "fas fa-file-alt",
+    "filename": "weekly_meeting_2024_01_15.wav",
+    "duration": "1:23:45",
+    "size": "12.4 MB",
+    "datetime": "2 часа назад",
+    "user": "Мишаня",
+    "status": "Готово"
+  },
+  {
+    "id": 2,
+    "photo": "fas fa-file-alt",
+    "filename": "interview_candidate_senior_dev.mp3",
+    "duration": "45:22",
+    "size": "6.8 MB",
+    "datetime": "5 часов назад",
+    "user": "Анна Козлова",
+    "status": "Готово"
+  },
+  {
+    "id": 3,
+    "photo": "fas fa-file-video",
+    "filename": "lecture_machine_learning_basics.mp4",
+    "duration": "2:15:30",
+    "size": "89.3 MB",
+    "datetime": "Вчера",
+    "user": "Мишаня",
+    "status": "Готово"
+  },
+  {
+    "id": 4,
+    "photo": "fas fa-file-audio",
+    "filename": "client_call_project_discussion.wav",
+    "duration": "32:18",
+    "size": "4.2 MB",
+    "datetime": "Обрабатывается...",
+    "user": "Дмитрий Морозов",
+    "status": "Обработка"
+  },
+  {
+    "id": 5,
+    "photo": "fas fa-file-alt",
+    "filename": "daily_standup_backend_team.m4a",
+    "duration": "15:42",
+    "size": "2.1 MB",
+    "datetime": "2 дня назад",
+    "user": "Анна Козлова",
+    "status": "Готово"
+  },
+  {
+    "id": 6,
+    "photo": "fas fa-file-audio",
+    "filename": "conference_keynote_speech.mp3",
+    "duration": "58:30",
+    "size": "8.9 MB",
+    "datetime": "3 дня назад",
+    "user": "Мишаня",
+    "status": "Ошибка"
+  }
+]

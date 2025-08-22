@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "name": "Мишаня",
+    "email": "mishanya@transcriptai.com",
+    "avatar": "МИ",
+    "role": "Админ",
+    "roleClass": "roleAdmin",
+    "status": "Онлайн",
+    "statusClass": "statusOnline",
+    "lastActive": "2 минуты назад",
+    "files": 47,
+    "limit": "Безлимит",
+    "limitPercent": 0
+  },
+  {
+    "id": 2,
+    "name": "Анна Козлова",
+    "email": "anna.kozlova@company.com",
+    "avatar": "АК",
+    "role": "Транскрибатор",
+    "roleClass": "roleTranscriptor",
+    "status": "Онлайн",
+    "statusClass": "statusOnline",
+    "lastActive": "15 минут назад",
+    "files": 23,
+    "limit": "68 / 100 мин",
+    "limitPercent": 68
+  },
+  {
+    "id": 3,
+    "name": "Дмитрий Морозов",
+    "email": "dmitriy.morozov@company.com",
+    "avatar": "ДМ",
+    "role": "Наблюдатель",
+    "roleClass": "roleObserver",
+    "status": "Оффлайн",
+    "statusClass": "statusOffline",
+    "lastActive": "2 часа назад",
+    "files": 0,
+    "limit": "0 / 50 мин",
+    "limitPercent": 0
+  },
+  {
+    "id": 4,
+    "name": "Елена Смирнова",
+    "email": "elena.smirnova@company.com",
+    "avatar": "ЕС",
+    "role": "Транскрибатор",
+    "roleClass": "roleTranscriptor",
+    "status": "Онлайн",
+    "statusClass": "statusOnline",
+    "lastActive": "5 минут назад",
+    "files": 34,
+    "limit": "89 / 150 мин",
+    "limitPercent": 59.3
+  },
+  {
+    "id": 5,
+    "name": "Владимир Кузнецов",
+    "email": "vladimir.kuznetsov@company.com",
+    "avatar": "ВК",
+    "role": "Наблюдатель",
+    "roleClass": "roleObserver",
+    "status": "Оффлайн",
+    "statusClass": "statusOffline",
+    "lastActive": "1 день назад",
+    "files": 2,
+    "limit": "12 / 50 мин",
+    "limitPercent": 24
+  }
+]
